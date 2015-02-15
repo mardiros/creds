@@ -1,0 +1,35 @@
+nginx:
+  build: docker/nginx
+  ports:
+    - 80:80
+    - 443:443
+  links:
+    - wsgi:wsgi.creds.local
+
+wsgi:
+  build: .
+  # user: docker
+  command: pserve development.ini --reload
+  ports:
+    - 6543:6543
+  volumes:
+    - .:/srv/creds
+    - ../aiorm/aiorm:/usr/local/lib/python3.4/site-packages/aiorm/
+    - ./venv3/lib/python3.4/site-packages/pyramid-1.5.2-py3.4.egg/pyramid:/usr/local/lib/python3.4/site-packages/pyramid
+    - ../pyramid_asyncio/pyramid_asyncio:/usr/local/lib/python3.4/site-packages/pyramid_asyncio
+    - ../pyramid_aiorest/pyramid_aiorest:/usr/local/lib/python3.4/site-packages/pyramid_aiorest
+    - ../pyramid_yards/pyramid_yards:/usr/local/lib/python3.4/site-packages/pyramid_yards
+    - ../pyramid_aiorm/pyramid_aiorm:/usr/local/lib/python3.4/site-packages/pyramid_aiorm
+  links:
+    - redis:redis.creds.local
+    - postgresql:pgsql.creds.local
+
+redis:
+  image: redis:2.8.9
+  ports:
+    - 6379:6379
+
+postgresql:
+  image: postgres:9.4
+  ports:
+    - 5432:5432
